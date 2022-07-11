@@ -1,0 +1,11 @@
+version: '3.1'
+
+services:
+  tasmota-exporter:
+    build:
+      context: .
+    environment:
+      DEVICE_NAME: "${NAME}"
+      DEVICE_IP_ADDRESS: "${IP_ADDRESS}"
+    ports:
+      - "8080:8080"

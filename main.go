@@ -23,6 +23,10 @@ func main() {
 		panic(err)
 	}
 
+	if ipAddress == "" {
+		panic("could not get correct device ip address")
+	}
+
 	tasmota := device.New(ipAddress, username, password)
 	version, err := tasmota.Version(context.Background())
 	if err != nil {
