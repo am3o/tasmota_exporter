@@ -38,7 +38,7 @@ func (p PowerDevice) Version(ctx context.Context) (Version, error) {
 	if err != nil {
 		return Version{}, err
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -68,7 +68,7 @@ func (p PowerDevice) Network(ctx context.Context) (Network, error) {
 	if err != nil {
 		return Network{}, err
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -99,7 +99,7 @@ func (p PowerDevice) DeviceInformation(ctx context.Context) (Device, error) {
 	if err != nil {
 		return Device{}, err
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -130,7 +130,7 @@ func (p PowerDevice) Status(ctx context.Context) (PowerStatus, error) {
 	if err != nil {
 		return PowerStatus{}, err
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
