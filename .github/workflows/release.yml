@@ -109,7 +109,7 @@ jobs:
         id: docker_meta
         uses: docker/metadata-action@v3
         with:
-          images: netzaffe/co2-exporter
+          images: netzaffe/tasmota-exporter
           tags: |
             type=ref,event=branch,pattern=latest
             type=semver,pattern={{version}}
