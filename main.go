@@ -42,6 +42,7 @@ func main() {
 	metrics.Version(version.Status.SDK, version.Status.Version)
 	prometheus.MustRegister(metrics)
 
+	logger.Info("service is initialized and starts working")
 	go func(ctx context.Context) {
 		ticker := time.NewTicker(time.Second * 15)
 		for ; ; <-ticker.C {

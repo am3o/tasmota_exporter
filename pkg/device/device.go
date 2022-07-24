@@ -22,7 +22,6 @@ type PowerDevice struct {
 func New(address string, username string, password string) PowerDevice {
 	return PowerDevice{url: url.URL{
 		Scheme: "http",
-		User:   url.UserPassword(username, password),
 		Host:   address,
 	}}
 }
