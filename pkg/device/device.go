@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -26,7 +27,7 @@ func New(address string, username string, password string) PowerDevice {
 	}}
 }
 
-func (p PowerDevice) Version(ctx context.Context) (Version, error) {
+func (p PowerDevice) executeRequest(ctx context.Context, command string) (io.ReadCloser, error) {
 	p.url.Path = "/cm"
 
 	query := p.url.Query()
@@ -35,52 +36,43 @@ func (p PowerDevice) Version(ctx context.Context) (Version, error) {
 
 	req, err := http.NewRequest(http.MethodGet, p.url.String(), nil)
 	if err != nil {
-		return Version{}, err
+		return nil, err
 	}
 	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return Version{}, err
+		return nil, err
 	}
 
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return Version{}, fmt.Errorf("could not fetch device: %w", err)
+		return nil, fmt.Errorf("could not fetch device: %w", err)
 	}
-	defer resp.Body.Close()
+	return resp.Body, nil
+}
+
+func (p PowerDevice) Version(ctx context.Context) (Version, error) {
+	content, err := p.executeRequest(ctx, DEVICE_VERSION)
+	if err != nil {
+		return Version{}, err
+	}
 
 	var version Version
-	if err := json.NewDecoder(resp.Body).Decode(&version); err != nil {
+	if err := json.NewDecoder(content).Decode(&version); err != nil {
 		return Version{}, err
 	}
 
 	return version, nil
 }
+
 func (p PowerDevice) Network(ctx context.Context) (Network, error) {
-	p.url.Path = "/cm"
-
-	query := p.url.Query()
-	query.Set("cmnd", DEVICE_NETWORK)
-	p.url.RawQuery = query.Encode()
-
-	req, err := http.NewRequest(http.MethodGet, p.url.String(), nil)
+	content, err := p.executeRequest(ctx, DEVICE_NETWORK)
 	if err != nil {
 		return Network{}, err
 	}
-	req = req.WithContext(ctx)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return Network{}, err
-	}
-
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return Network{}, fmt.Errorf("could not fetch device: %w", err)
-	}
-	defer resp.Body.Close()
 
 	var network Network
-	if err := json.NewDecoder(resp.Body).Decode(&network); err != nil {
+	if err := json.NewDecoder(content).Decode(&network); err != nil {
 		return Network{}, err
 	}
 
@@ -88,30 +80,13 @@ func (p PowerDevice) Network(ctx context.Context) (Network, error) {
 }
 
 func (p PowerDevice) DeviceInformation(ctx context.Context) (Device, error) {
-	p.url.Path = "/cm"
-
-	query := p.url.Query()
-	query.Set("cmnd", DEVICE_INFORMATION)
-	p.url.RawQuery = query.Encode()
-
-	req, err := http.NewRequest(http.MethodGet, p.url.String(), nil)
+	content, err := p.executeRequest(ctx, DEVICE_INFORMATION)
 	if err != nil {
 		return Device{}, err
 	}
-	req = req.WithContext(ctx)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return Device{}, err
-	}
-
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return Device{}, fmt.Errorf("could not fetch device: %w", err)
-	}
-	defer resp.Body.Close()
 
 	var device Device
-	if err := json.NewDecoder(resp.Body).Decode(&device); err != nil {
+	if err := json.NewDecoder(content).Decode(&device); err != nil {
 		return Device{}, err
 	}
 
@@ -119,30 +94,13 @@ func (p PowerDevice) DeviceInformation(ctx context.Context) (Device, error) {
 }
 
 func (p PowerDevice) Status(ctx context.Context) (PowerStatus, error) {
-	p.url.Path = "/cm"
-
-	query := p.url.Query()
-	query.Set("cmnd", DEVICE_ENERGY)
-	p.url.RawQuery = query.Encode()
-
-	req, err := http.NewRequest(http.MethodGet, p.url.String(), nil)
+	content, err := p.executeRequest(ctx, DEVICE_ENERGY)
 	if err != nil {
 		return PowerStatus{}, err
 	}
-	req = req.WithContext(ctx)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return PowerStatus{}, err
-	}
-
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return PowerStatus{}, fmt.Errorf("could not fetch device: %w", err)
-	}
-	defer resp.Body.Close()
 
 	var status PowerStatus
-	if err := json.NewDecoder(resp.Body).Decode(&status); err != nil {
+	if err := json.NewDecoder(content).Decode(&status); err != nil {
 		return PowerStatus{}, err
 	}
 
