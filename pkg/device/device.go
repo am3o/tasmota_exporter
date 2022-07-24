@@ -31,7 +31,7 @@ func (p PowerDevice) executeRequest(ctx context.Context, command string) (io.Rea
 	p.url.Path = "/cm"
 
 	query := p.url.Query()
-	query.Set("cmnd", DEVICE_VERSION)
+	query.Set("cmnd", command)
 	p.url.RawQuery = query.Encode()
 
 	req, err := http.NewRequest(http.MethodGet, p.url.String(), nil)
@@ -48,7 +48,7 @@ func (p PowerDevice) executeRequest(ctx context.Context, command string) (io.Rea
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("could not fetch device: %w", err)
 	}
-	return resp.Body, nil
+	return io.NopCloser(resp.Body), nil
 }
 
 func (p PowerDevice) Version(ctx context.Context) (Version, error) {
@@ -56,6 +56,7 @@ func (p PowerDevice) Version(ctx context.Context) (Version, error) {
 	if err != nil {
 		return Version{}, err
 	}
+	defer content.Close()
 
 	var version Version
 	if err := json.NewDecoder(content).Decode(&version); err != nil {
@@ -70,6 +71,7 @@ func (p PowerDevice) Network(ctx context.Context) (Network, error) {
 	if err != nil {
 		return Network{}, err
 	}
+	defer content.Close()
 
 	var network Network
 	if err := json.NewDecoder(content).Decode(&network); err != nil {
@@ -84,6 +86,7 @@ func (p PowerDevice) DeviceInformation(ctx context.Context) (Device, error) {
 	if err != nil {
 		return Device{}, err
 	}
+	defer content.Close()
 
 	var device Device
 	if err := json.NewDecoder(content).Decode(&device); err != nil {
@@ -98,6 +101,7 @@ func (p PowerDevice) Status(ctx context.Context) (PowerStatus, error) {
 	if err != nil {
 		return PowerStatus{}, err
 	}
+	defer content.Close()
 
 	var status PowerStatus
 	if err := json.NewDecoder(content).Decode(&status); err != nil {
