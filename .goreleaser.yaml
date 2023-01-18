@@ -39,17 +39,19 @@ changelog:
       - '^test:'
 
 dockers:
-  #  - image_templates: [ "netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64" ]
-  #    dockerfile: .goreleaser.dockerfile
-  #    goarch: amd64
-  #    use: docker
-  #    build_flag_templates:
-  #      - --platform=linux/amd64
-  #      - --label=org.opencontainers.image.title={{ .ProjectName }}
-  #      - --label=org.opencontainers.image.version={{ .Version }}
-  #      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-  #      - --label=org.opencontainers.image.revision={{ .FullCommit }}
-  #      - --label=org.opencontainers.image.licenses=MIT
+  - image_templates: [ "netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64" ]
+    dockerfile: .goreleaser.dockerfile
+    goarch: amd64
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/amd64
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.url=https://github.com/am3o/{{ .ProjectName }}
+      - --label=org.opencontainers.image.source=https://github.com/am3o/{{ .ProjectName }}
+      - --label=org.opencontainers.image.licenses=MIT
 
   - image_templates: [ "netzaffe/{{ .ProjectName }}:{{ .Version }}-arm64v8" ]
     dockerfile: .goreleaser.dockerfile
@@ -61,42 +63,48 @@ dockers:
       - --label=org.opencontainers.image.version={{ .Version }}
       - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
       - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.url=https://github.com/am3o/{{ .ProjectName }}
+      - --label=org.opencontainers.image.source=https://github.com/am3o/{{ .ProjectName }}
       - --label=org.opencontainers.image.licenses=MIT
-#
-#  - image_templates: [ "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6" ]
-#    dockerfile: .goreleaser.dockerfile
-#    goarch: arm/v6
-#    use: docker
-#    build_flag_templates:
-#      - --platform=linux/arm/v6
-#      - --label=org.opencontainers.image.title={{ .ProjectName }}
-#      - --label=org.opencontainers.image.version={{ .Version }}
-#      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-#      - --label=org.opencontainers.image.revision={{ .FullCommit }}
-#      - --label=org.opencontainers.image.licenses=MIT
-#
-#  - image_templates: [ "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7" ]
-#    dockerfile: .goreleaser.dockerfile
-#    goarch: arm/v7
-#    use: docker
-#    build_flag_templates:
-#      - --platform=linux/arm/v7
-#      - --label=org.opencontainers.image.title={{ .ProjectName }}
-#      - --label=org.opencontainers.image.version={{ .Version }}
-#      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
-#      - --label=org.opencontainers.image.revision={{ .FullCommit }}
-#      - --label=org.opencontainers.image.licenses=MIT
+
+  - image_templates: [ "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6" ]
+    dockerfile: .goreleaser.dockerfile
+    goarch: arm/v6
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/arm/v6
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.url=https://github.com/am3o/{{ .ProjectName }}
+      - --label=org.opencontainers.image.source=https://github.com/am3o/{{ .ProjectName }}
+      - --label=org.opencontainers.image.licenses=MIT
+
+  - image_templates: [ "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7" ]
+    dockerfile: .goreleaser.dockerfile
+    goarch: arm/v7
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/arm/v7
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.url=https://github.com/am3o/{{ .ProjectName }}
+      - --label=org.opencontainers.image.source=https://github.com/am3o/{{ .ProjectName }}
+      - --label=org.opencontainers.image.licenses=MIT
 
 docker_manifests:
   - name_template: "netzaffe/{{ .ProjectName }}:{{ .Version }}"
     image_templates:
-      #      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64"
-      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-arm64v8"
-      #      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6"
-      #      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7"
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-arm64v8
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7
   - name_template: "netzaffe/{{ .ProjectName }}:latest"
     image_templates:
-      #      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64"
-      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-arm64v8"
-#      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6"
-#      - "netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7"
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-arm64v8
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6
+      - netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7
