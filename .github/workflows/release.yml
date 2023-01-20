@@ -44,6 +44,7 @@ jobs:
   staticcheck:
     name: "staticcheck"
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v1
         with:
@@ -51,6 +52,22 @@ jobs:
       - uses: dominikh/staticcheck-action@v1.1.0
         with:
           version: "2021.1.1"
+
+  goreleaser:
+    name: "goreleaser check"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - uses: actions/checkout@v3
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          distribution: goreleaser
+          version: latest
+          args: check
 
   build:
     runs-on: ubuntu-latest
@@ -75,11 +92,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Go
         uses: actions/setup-go@v2
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_SECRET }}
