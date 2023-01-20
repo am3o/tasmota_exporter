@@ -3,9 +3,6 @@ before:
     - go mod tidy
     - go generate ./...
 
-variables:
-  ProjectName: 'tasmota-exporter'
-
 builds:
   - env:
       - CGO_ENABLED=0
@@ -46,77 +43,77 @@ changelog:
 
 dockers:
   - image_templates:
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-amd64'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-amd64'
     dockerfile: .goreleaser.dockerfile
     goarch: amd64
     use: buildx
     build_flag_templates:
       - '--platform=linux/x86_64'
-      - '--label=org.opencontainers.image.title={{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.title=tasmota-exporter'
       - '--label=org.opencontainers.image.version={{ .Version }}'
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
       - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
-      - '--label=org.opencontainers.image.url=https://github.com/am3o/{{ .Var.ProjectName }}'
-      - '--label=org.opencontainers.image.source=https://github.com/am3o/{{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.url=https://github.com/am3o/tasmota_exporter'
+      - '--label=org.opencontainers.image.source=https://github.com/am3o/tasmota_exporter'
       - '--label=org.opencontainers.image.licenses=MIT'
 
   - image_templates:
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-arm64v8'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-arm64v8'
     dockerfile: .goreleaser.dockerfile
     goarch: arm64
     use: buildx
     build_flag_templates:
       - '--platform=linux/arm64/v8'
-      - '--label=org.opencontainers.image.title={{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.title=tasmota-exporter'
       - '--label=org.opencontainers.image.version={{ .Version }}'
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
       - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
-      - '--label=org.opencontainers.image.url=https://github.com/am3o/{{ .Var.ProjectName }}'
-      - '--label=org.opencontainers.image.source=https://github.com/am3o/{{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.url=https://github.com/am3o/tasmota_exporter'
+      - '--label=org.opencontainers.image.source=https://github.com/am3o/tasmota_exporter'
       - '--label=org.opencontainers.image.licenses=MIT'
 
   - image_templates:
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-armv6'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-armv6'
     dockerfile: .goreleaser.dockerfile
     goarch: arm
     goarm: "6"
     use: buildx
     build_flag_templates:
       - '--platform=linux/arm'
-      - '--label=org.opencontainers.image.title={{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.title=tasmota-exporter'
       - '--label=org.opencontainers.image.version={{ .Version }}'
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
-      - '--label=org.opencontainers.image.url=https://github.com/am3o/{{ .Var.ProjectName }}'
-      - '--label=org.opencontainers.image.source=https://github.com/am3o/{{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.url=https://github.com/am3o/tasmota_exporter'
+      - '--label=org.opencontainers.image.source=https://github.com/am3o/tasmota_exporter'
       - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
       - '--label=org.opencontainers.image.licenses=MIT'
 
   - image_templates:
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-armv7'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-armv7'
     dockerfile: .goreleaser.dockerfile
     goarch: arm
     goarm: "7"
     use: buildx
     build_flag_templates:
       - '--platform=linux/arm/v7'
-      - '--label=org.opencontainers.image.title={{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.title=tasmota-exporter'
       - '--label=org.opencontainers.image.version={{ .Version }}'
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
       - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
-      - '--label=org.opencontainers.image.url=https://github.com/am3o/{{ .Var.ProjectName }}'
-      - '--label=org.opencontainers.image.source=https://github.com/am3o/{{ .Var.ProjectName }}'
+      - '--label=org.opencontainers.image.url=https://github.com/am3o/tasmota_exporter'
+      - '--label=org.opencontainers.image.source=https://github.com/am3o/tasmota_exporter'
       - '--label=org.opencontainers.image.licenses=MIT'
 
 docker_manifests:
-  - name_template: 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}'
+  - name_template: 'netzaffe/tasmota-exporter:{{ .Version }}'
     image_templates:
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-amd64'
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-arm64v8'
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-armv6'
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-armv7'
-  - name_template: 'netzaffe/{{ .Var.ProjectName }}:latest'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-amd64'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-arm64v8'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-armv6'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-armv7'
+  - name_template: 'netzaffe/tasmota-exporter:latest'
     image_templates:
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-amd64'
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-arm64v8'
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-armv6'
-      - 'netzaffe/{{ .Var.ProjectName }}:{{ .Version }}-armv7'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-amd64'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-arm64v8'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-armv6'
+      - 'netzaffe/tasmota-exporter:{{ .Version }}-armv7'
