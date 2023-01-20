@@ -41,7 +41,8 @@ changelog:
       - '^test:'
 
 dockers:
-  - image_templates: [ 'netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64' ]
+  - image_templates:
+      - 'netzaffe/{{ .ProjectName }}:{{ .Version }}-amd64'
     dockerfile: .goreleaser.dockerfile
     goarch: amd64
     use: buildx
@@ -55,7 +56,8 @@ dockers:
       - '--label=org.opencontainers.image.source=https://github.com/am3o/{{ .ProjectName }}'
       - '--label=org.opencontainers.image.licenses=MIT'
 
-  - image_templates: [ 'netzaffe/{{ .ProjectName }}:{{ .Version }}-arm64v8' ]
+  - image_templates:
+      - 'netzaffe/{{ .ProjectName }}:{{ .Version }}-arm64v8'
     dockerfile: .goreleaser.dockerfile
     goarch: arm64
     use: buildx
@@ -69,7 +71,8 @@ dockers:
       - '--label=org.opencontainers.image.source=https://github.com/am3o/{{ .ProjectName }}'
       - '--label=org.opencontainers.image.licenses=MIT'
 
-  - image_templates: [ 'netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6' ]
+  - image_templates:
+      - 'netzaffe/{{ .ProjectName }}:{{ .Version }}-armv6'
     dockerfile: .goreleaser.dockerfile
     goarch: arm
     goarm: "6"
@@ -84,7 +87,8 @@ dockers:
       - '--label=org.opencontainers.image.revision={{ .FullCommit }}'
       - '--label=org.opencontainers.image.licenses=MIT'
 
-  - image_templates: [ 'netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7' ]
+  - image_templates:
+      - 'netzaffe/{{ .ProjectName }}:{{ .Version }}-armv7'
     dockerfile: .goreleaser.dockerfile
     goarch: arm
     goarm: "7"
