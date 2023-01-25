@@ -37,7 +37,11 @@ func main() {
 		sensor := device.New(value.IP, value.Username, value.Password, value.Name, value.Type)
 		version, err := sensor.Version(ctx)
 		if err != nil {
-			logger.Error("could not detect version of device", zap.Error(err), zap.String("device", value.Name), zap.String("ip", value.IP))
+			logger.With(
+				zap.String("ip", value.IP),
+				zap.String("device", value.Name),
+				zap.String("type", value.Type),
+			).Error("could not detect version of device", zap.Error(err))
 			os.Exit(1)
 			return
 		}
@@ -61,7 +65,11 @@ func main() {
 				go func(powerDevice device.PowerDevice) {
 					info, err := powerDevice.Status(ctx)
 					if err != nil {
-						logger.Error("could not fetch information from the device", zap.Error(err), zap.String("ip", powerDevice.Information.IP))
+						logger.With(
+							zap.String("ip", powerDevice.Information.IP),
+							zap.String("device", powerDevice.Information.Name),
+							zap.String("type", powerDevice.Information.Type),
+						).Error("could not fetch information from the device", zap.Error(err))
 						return
 					}
 
@@ -78,6 +86,12 @@ func main() {
 							},
 						},
 					)
+
+					logger.With(
+						zap.String("device", powerDevice.Information.Name),
+						zap.String("ip", powerDevice.Information.IP),
+						zap.String("type", powerDevice.Information.Type),
+					).Info("update all values from device")
 				}(value)
 			}
 		}
