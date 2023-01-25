@@ -2,20 +2,19 @@ package main
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/am3o/tasmota_exporter/pkg/collector"
+	"github.com/am3o/tasmota_exporter/pkg/config"
 	"github.com/am3o/tasmota_exporter/pkg/device"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
-	"net/http"
-	"os"
-	"time"
 )
 
-var deviceType, _ = os.LookupEnv("DEVICE_NAME")
-var ipAddress, _ = os.LookupEnv("DEVICE_IP_ADDRESS")
-var username, _ = os.LookupEnv("DEVICE_USERNAME")
-var password, _ = os.LookupEnv("DEVICE_PASSWORD")
+var configFile, _ = os.LookupEnv("CONFIG_FILE")
 
 func main() {
 	logger, err := zap.NewProduction()
@@ -23,41 +22,64 @@ func main() {
 		panic(err)
 	}
 
-	if ipAddress == "" {
-		panic("could not get correct device ip address")
-	}
-
-	tasmota := device.New(ipAddress, username, password)
-	version, err := tasmota.Version(context.Background())
+	configuration, err := config.New(configFile)
 	if err != nil {
-		panic(err)
+		logger.Error("could not read configuration", zap.Error(err))
+		os.Exit(1)
+		return
 	}
 
-	info, err := tasmota.Network(context.Background())
-	if err != nil {
-		panic(err)
-	}
+	metrics := collector.New()
 
-	metrics := collector.New(info.Status.Hostname, info.Status.Address, deviceType)
-	metrics.Version(version.Status.SDK, version.Status.Version)
+	ctx := context.Background()
+	devices := make([]device.PowerDevice, 0)
+	for _, value := range configuration.Devices {
+		sensor := device.New(value.IP, value.Username, value.Password, value.Name, value.Type)
+		version, err := sensor.Version(ctx)
+		if err != nil {
+			logger.Error("could not detect version of device", zap.Error(err), zap.String("device", value.Name), zap.String("ip", value.IP))
+			os.Exit(1)
+			return
+		}
+
+		metrics.Version(version.Status.SDK, version.Status.Version, collector.Metadata{
+			IP: value.IP,
+			Device: collector.Device{
+				Name: value.Name,
+				Type: value.Type,
+			},
+		})
+		devices = append(devices, sensor)
+	}
 	prometheus.MustRegister(metrics)
 
 	logger.Info("service is initialized and starts working")
 	go func(ctx context.Context) {
 		ticker := time.NewTicker(time.Second * 15)
 		for ; ; <-ticker.C {
-			info, err := tasmota.Status(ctx)
-			if err != nil {
-				logger.Error("could not fetch information from the device", zap.Error(err), zap.String("ip-address", ipAddress))
-				continue
-			}
+			for _, value := range devices {
+				go func(powerDevice device.PowerDevice) {
+					info, err := powerDevice.Status(ctx)
+					if err != nil {
+						logger.Error("could not fetch information from the device", zap.Error(err), zap.String("ip", powerDevice.Information.IP))
+						return
+					}
 
-			metrics.SetPowerUsage(
-				info.Status.Energy.Current,
-				info.Status.Energy.Today,
-				info.Status.Energy.Yesterday,
-				info.Status.Energy.Total,
-			)
+					metrics.SetPowerUsage(
+						info.Status.Energy.Current,
+						info.Status.Energy.Today,
+						info.Status.Energy.Yesterday,
+						info.Status.Energy.Total,
+						collector.Metadata{
+							IP: powerDevice.Information.IP,
+							Device: collector.Device{
+								Name: powerDevice.Information.Name,
+								Type: powerDevice.Information.Type,
+							},
+						},
+					)
+				}(value)
+			}
 		}
 	}(context.Background())
 

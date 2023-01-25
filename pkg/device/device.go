@@ -16,15 +16,29 @@ const (
 	DEVICE_ENERGY      = "status+8"
 )
 
-type PowerDevice struct {
-	url url.URL
+type Metadata struct {
+	IP   string
+	Name string
+	Type string
 }
 
-func New(address string, username string, password string) PowerDevice {
-	return PowerDevice{url: url.URL{
-		Scheme: "http",
-		Host:   address,
-	}}
+type PowerDevice struct {
+	Information Metadata
+	url         url.URL
+}
+
+func New(address string, username string, password string, name string, Type string) PowerDevice {
+	return PowerDevice{
+		Information: Metadata{
+			IP:   address,
+			Name: name,
+			Type: Type,
+		},
+		url: url.URL{
+			Scheme: "http",
+			Host:   address,
+		},
+	}
 }
 
 func (p PowerDevice) executeRequest(ctx context.Context, command string) (io.ReadCloser, error) {
@@ -34,11 +48,10 @@ func (p PowerDevice) executeRequest(ctx context.Context, command string) (io.Rea
 	query.Set("cmnd", command)
 	p.url.RawQuery = query.Encode()
 
-	req, err := http.NewRequest(http.MethodGet, p.url.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

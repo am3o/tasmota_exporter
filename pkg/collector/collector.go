@@ -21,8 +21,22 @@ const (
 	labelSDK     = "sdk"
 	labelVersion = "version"
 	labelUnit    = "unit"
+
+	labelDeviceName = "deviceName"
+	labelIP         = "ip"
+
+	labelDeviceType = "deviceType"
 )
 
+type Metadata struct {
+	IP     string
+	Device Device
+}
+
+type Device struct {
+	Name string
+	Type string
+}
 type Collector struct {
 	Device              *prometheus.CounterVec
 	PowerUsageTotal     *prometheus.GaugeVec
@@ -31,43 +45,40 @@ type Collector struct {
 	PowerUsageCurrent   *prometheus.GaugeVec
 }
 
-func New(deviceName string, ip string, deviceType string) *Collector {
-	constLabels := prometheus.Labels{
-		"name":        deviceName,
-		"ip":          ip,
-		"device_type": deviceType,
-	}
-
+func New() *Collector {
 	return &Collector{
 		Device: prometheus.NewCounterVec(prometheus.CounterOpts{
-			Namespace:   Namespace,
-			Name:        "device_information",
-			ConstLabels: constLabels,
-		}, []string{labelSDK, labelVersion}),
+			Namespace: Namespace,
+			Name:      "device_information",
+		}, []string{labelSDK, labelVersion, labelDeviceName, labelIP, labelDeviceType}),
 		PowerUsageTotal: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace:   Namespace,
-			Name:        "device_power_usage_total",
-			ConstLabels: constLabels,
-		}, []string{labelUnit}),
+			Namespace: Namespace,
+			Name:      "device_power_usage_total",
+		}, []string{labelUnit, labelDeviceName, labelIP, labelDeviceType}),
 		PowerUsageToday: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Name:      "device_power_usage_today",
-		}, []string{labelUnit}),
+		}, []string{labelUnit, labelDeviceName, labelIP, labelDeviceType}),
 		PowerUsageYesterday: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace:   Namespace,
-			Name:        "device_power_usage_yesterday",
-			ConstLabels: constLabels,
-		}, []string{labelUnit}),
+			Namespace: Namespace,
+			Name:      "device_power_usage_yesterday",
+		}, []string{labelUnit, labelDeviceName, labelIP, labelDeviceType}),
 		PowerUsageCurrent: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace:   Namespace,
-			Name:        "device_power_usage_current",
-			ConstLabels: constLabels,
-		}, []string{labelUnit}),
+			Namespace: Namespace,
+			Name:      "device_power_usage_current",
+		}, []string{labelUnit, labelDeviceName, labelIP, labelDeviceType}),
 	}
 }
 
-func (c *Collector) Version(sdk string, version string) {
-	c.Device.With(prometheus.Labels{labelSDK: sdk, labelVersion: version}).Inc()
+func (c *Collector) Version(sdk string, version string, metadata Metadata) {
+	c.Device.With(
+		prometheus.Labels{
+			labelSDK:        sdk,
+			labelVersion:    version,
+			labelDeviceName: metadata.Device.Name,
+			labelIP:         metadata.IP,
+			labelDeviceType: metadata.Device.Type,
+		}).Inc()
 }
 
 func (c *Collector) Describe(descs chan<- *prometheus.Desc) {
@@ -82,9 +93,44 @@ func (c *Collector) Collect(metrics chan<- prometheus.Metric) {
 	c.Device.Collect(metrics)
 }
 
-func (c *Collector) SetPowerUsage(current, today, yesterday, total float64) {
-	c.PowerUsageTotal.With(prometheus.Labels{labelUnit: ""}).Set(total)
-	c.PowerUsageToday.With(prometheus.Labels{labelUnit: ""}).Set(today)
-	c.PowerUsageYesterday.With(prometheus.Labels{labelUnit: ""}).Set(yesterday)
-	c.PowerUsageCurrent.With(prometheus.Labels{labelUnit: ""}).Set(current)
+func (c *Collector) SetPowerUsage(current, today, yesterday, total float64, metadata Metadata) {
+	c.setPowerUsageTotal(total, metadata)
+	c.setPowerUsageToday(today, metadata)
+	c.setPowerUsageYesterday(yesterday, metadata)
+	c.setPowerUsageCurrent(current, metadata)
+}
+
+func (c *Collector) setPowerUsageTotal(value float64, metadata Metadata) {
+	c.PowerUsageTotal.With(prometheus.Labels{
+		labelUnit:       "",
+		labelIP:         metadata.IP,
+		labelDeviceName: metadata.Device.Name,
+		labelDeviceType: metadata.Device.Type,
+	}).Set(value)
+}
+func (c *Collector) setPowerUsageToday(value float64, metadata Metadata) {
+	c.PowerUsageToday.With(prometheus.Labels{
+		labelUnit:       "",
+		labelIP:         metadata.IP,
+		labelDeviceName: metadata.Device.Name,
+		labelDeviceType: metadata.Device.Type,
+	}).Set(value)
+}
+
+func (c *Collector) setPowerUsageYesterday(value float64, metadata Metadata) {
+	c.PowerUsageYesterday.With(prometheus.Labels{
+		labelUnit:       "",
+		labelIP:         metadata.IP,
+		labelDeviceName: metadata.Device.Name,
+		labelDeviceType: metadata.Device.Type,
+	}).Set(value)
+}
+
+func (c *Collector) setPowerUsageCurrent(value float64, metadata Metadata) {
+	c.PowerUsageCurrent.With(prometheus.Labels{
+		labelUnit:       "",
+		labelIP:         metadata.IP,
+		labelDeviceName: metadata.Device.Name,
+		labelDeviceType: metadata.Device.Type,
+	}).Set(value)
 }
