@@ -23,9 +23,11 @@ jobs:
         step: [ vet, test ]
     steps:
       - name: Checkout repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Install Task
+        uses: arduino/setup-task@v1
       - name: ${{ matrix.step }}
-        run: make ${{ matrix.step }}
+        run: task ${{ matrix.step }}
 
   golangci:
     name: golangci
