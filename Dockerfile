@@ -1,4 +1,4 @@
-FROM golang:1.18-bullseye AS Build
+FROM golang:1.20-bullseye AS Build
 
 RUN mkdir /build
 ADD . /build
